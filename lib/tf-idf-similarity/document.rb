@@ -49,14 +49,33 @@ module TfIdfSimilarity
 
   private
 
+    def kgrams(str, k1, k2)
+      words = []
+      for k in k1..k2
+        for pos in 0..str.length-k
+          words << str[pos..pos+k-1]
+        end
+      end
+      words
+    end
+
     # Tokenizes the text and counts terms and total tokens.
-    def set_term_counts_and_size
-      tokenize(text).each do |word|
-        token = Token.new(word)
-        if token.valid?
+    def set_term_counts_and_size(kgrams=true, k1=4, k2=7)
+      if kgrams
+        kgrams(text, k1, k2).each do |word|
+          token = Token.new(word)
           term = token.lowercase_filter.classic_filter.to_s
           @term_counts[term] += 1
           @size += 1
+        end
+      else
+        tokenize(text).each do |word|
+          token = Token.new(word)
+          if token.valid?
+            term = token.lowercase_filter.classic_filter.to_s
+            @term_counts[term] += 1
+            @size += 1
+          end
         end
       end
     end
